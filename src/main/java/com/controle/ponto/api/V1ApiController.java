@@ -2,6 +2,7 @@ package com.controle.ponto.api;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,11 +30,12 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "v1", description = "the v1 API")
 public class V1ApiController {
 
-    private final V1ApiDelegate delegate;
+    @Autowired
+	private V1ApiDelegate delegate;
 
-    public V1ApiController(@org.springframework.beans.factory.annotation.Autowired(required = false) V1ApiDelegate delegate) {
-        this.delegate = delegate;
-    }
+//    public V1ApiController(@org.springframework.beans.factory.annotation.Autowired(required = false) V1ApiDelegate delegate) {
+//        this.delegate = delegate;
+//    }
 
     public V1ApiDelegate getDelegate() {
         return delegate;
