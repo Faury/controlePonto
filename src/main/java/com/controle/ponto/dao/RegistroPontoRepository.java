@@ -11,6 +11,6 @@ import com.controle.ponto.entity.RegistroPonto;
 
 public interface RegistroPontoRepository extends CrudRepository<RegistroPonto, Date>{
 
-	@Query("SELECT a FROM RegistroPonto a WHERE month(a.dia) = :monthParam AND year(a.dia = :yearParam")
-    List<RegistroPonto> findAllByMonth(@Param("month") Integer monthParam, @Param("year") Integer yearParam);
+	@Query("SELECT a FROM RegistroPonto a WHERE month(a.dia) = :monthParam AND year(a.dia) = :yearParam")
+    List<RegistroPonto> findAllByMonth(@Param("monthParam") Integer monthParam, @Param("yearParam") Integer yearParam);
 }

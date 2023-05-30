@@ -20,6 +20,10 @@ public class RegistroPonto {
 	@Column
 	private List<String> horarios;
 	
+	public RegistroPonto() {
+		super();
+	}
+
 	public RegistroPonto(Date dia, List<String> horarios) {
 		super();
 		this.dia = dia;

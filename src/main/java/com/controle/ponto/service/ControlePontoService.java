@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,8 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.controle.ponto.api.V1ApiDelegate;
@@ -35,17 +34,25 @@ import com.controle.ponto.model.Relatorio;
 @Service
 public class ControlePontoService implements V1ApiDelegate {
 
+	DateTimeFormatter validator = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	@Autowired
 	RegistroPontoRepository registroPontoRepository;
 	
 	@Override
-	public ResponseEntity<Relatorio> geraRelatorioMensal(String mesAno) {
+	public Relatorio geraRelatorioMensal(String mesAno) {
 
-		String[] args = mesAno.split("/");
-		Integer mes = Integer.parseInt(args[0]);
-		Integer ano = Integer.parseInt(args[1]);
+		Integer ano;
+		Integer mes;
+		
+		try {
+			String[] args = mesAno.split("-");
+			ano = Integer.parseInt(args[0]);
+			mes = Integer.parseInt(args[1]);
+		} catch (RuntimeException e){
+			throw NotFoundException.newReportNotFoundException();
+		}
 		
 		List<RegistroPonto> listRegistroPonto = registroPontoRepository.findAllByMonth(mes, ano);
 	
@@ -61,7 +68,7 @@ public class ControlePontoService implements V1ApiDelegate {
 			registro.setDia(Instant.ofEpochMilli(registroPonto.getDia().getTime())
 				      .atZone(ZoneId.systemDefault())
 				      .toLocalDate());
-			registroPonto.setHorarios(registroPonto.getHorarios());
+			registro.setHorarios(registroPonto.getHorarios());
 			registros.add(registro);
 			
 			List<String> horarios = registroPonto.getHorarios();
@@ -94,7 +101,7 @@ public class ControlePontoService implements V1ApiDelegate {
 		relatorio.setHorasDevidas(Duration.ofSeconds(horasDevidas).toString());
 		relatorio.setHorasExcedentes(Duration.ofSeconds(horasExcedentes).toString());
 		
-		return new ResponseEntity<>(relatorio, HttpStatus.OK);
+		return relatorio;
 	}
 	
 	private Long getWorkingTimeInSeconds(Integer mes, Integer ano) { 
@@ -108,21 +115,23 @@ public class ControlePontoService implements V1ApiDelegate {
 	}
 	
 	@Override
-	public ResponseEntity<Registro> insereBatida(Momento momento) {
+	public Registro insereBatida(Momento momento) {
 		LocalDate localDate = null;
 		
 		if (momento == null || momento.getDataHora() == null) {
 			throw InvalidRequestException.newRequiredFieldsException();
 		}
-
-		String dia = momento.getDataHora().substring(0, momento.getDataHora().indexOf('T'));
-		String hora = momento.getDataHora().substring(momento.getDataHora().indexOf('T'));
-		
-		try {
-			localDate = LocalDate.parse(dia, formatter);
-		} catch (RuntimeException e) {
+		try {		
+			validator.parse(momento.getDataHora());
+		} catch (DateTimeParseException e) {
 			throw InvalidRequestException.newInvalidDateTimeException();
 		}
+		
+		String dia = momento.getDataHora().substring(0, momento.getDataHora().indexOf('T'));
+		String hora = momento.getDataHora().substring(momento.getDataHora().indexOf('T') + 1);
+		
+		localDate = LocalDate.parse(dia, formatter);
+		
 		
 		if (localDate.getDayOfWeek() == DayOfWeek.SATURDAY 
 				|| localDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -168,7 +177,7 @@ public class ControlePontoService implements V1ApiDelegate {
 		registro.setDia(localDate);
 		registro.setHorarios(horarios);
 		
-		return new ResponseEntity<>(registro, HttpStatus.CREATED);
+		return registro;
 	}
 
 }

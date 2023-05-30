@@ -1,8 +1,5 @@
 package com.controle.ponto.api;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import com.controle.ponto.model.Momento;
 import com.controle.ponto.model.Registro;
 import com.controle.ponto.model.Relatorio;
@@ -18,27 +15,19 @@ public interface V1ApiDelegate {
      * Geração de relatório mensal de usuário.
      *
      * @param mes  (required)
-     * @return Relatório mensal (status code 200)
-     *         or Relatório não encontrado (status code 404)
+     * @return Relatório mensal
      * @see V1Api#geraRelatorioMensal
      */
-    default ResponseEntity<Relatorio> geraRelatorioMensal(String mes) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
+    Relatorio geraRelatorioMensal(String mes);
 
     /**
      * POST /v1/batidas : Bater ponto
      * Registrar um horário da jornada diária de trabalho
      *
      * @param momento  (optional)
-     * @return Created  (status code 201)
-     *         or Bad Request  (status code 400)
-     *         or Forbidden  (status code 403)
-     *         or Conflict  (status code 409)
+     * @return Registro
      * @see V1Api#insereBatida
      */
-    default ResponseEntity<Registro> insereBatida(Momento momento) {
-    	return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
+    Registro insereBatida(Momento momento);
 
 }
