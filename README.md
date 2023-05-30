@@ -1,6 +1,6 @@
 # controlePonto
 
-Projeto que representa um controle de ponto, possui as funções de inserir batida e gera relatorio mensal.
+Projeto que representa um controle de ponto, feito em Java com Spring Boot, possui as funções de inserir batida e gerar relatorio mensal.
 
 O projeto possui dois endpoints:
 
